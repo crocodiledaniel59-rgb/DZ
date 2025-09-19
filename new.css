@@ -60,3 +60,11 @@ body {
 .btn-download:hover { background: #16a34a; box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
 
 @media (max-width: 768px) { .main-grid, .action-buttons { grid-template-columns: 1fr; } }
+
+/* Tambahan untuk stylish.css */
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+.action-buttons-single { display: grid; margin-bottom: 1.5rem; }
+.file-input-wrapper input[type="file"] { display: none; }
+.file-input-wrapper label { display: block; padding: 0.8rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; text-align: center; transition: all 0.3s ease; }
+.file-input-wrapper label:hover { background: rgba(255,255,255,0.1); }
+@media (max-width: 768px) { .controls-grid { grid-template-columns: 1fr; } }
