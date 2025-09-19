@@ -1,0 +1,21 @@
+{
+  "name": "DZ cyper",
+  "short_name": "DZ cyper",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#16213e",
+  "description": "sebuah website yang bisa meng enkripsi code html Lo secara hard.",
+  "icons": [
+    {
+      "src": "images/icon-139x139.png",
+      "sizes": "139x139",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon-368x368.png",
+      "sizes": "368x368",
+      "type": "image/png"
+    }
+  ]
+}
