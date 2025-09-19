@@ -1,47 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Crypter Playground</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>DZ Crypter - Enkripsi & Dekripsi</title>
+    <!-- Library Crypto-JS untuk proses enkripsi/dekripsi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Library Particles.js untuk efek latar belakang -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <link rel="stylesheet" href="stylish.css">
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+<body>
 
-    <!-- Login/Register tidak kita perlukan untuk alat ini, langsung ke aplikasi -->
-    <div id="app-shell" class="w-full max-w-6xl">
-        <div class="bg-gray-800 border border-red-500/50 p-6 md:p-8 rounded-lg shadow-2xl">
-            <div class="text-center mb-6">
-                <h1 class="text-3xl font-bold text-red-400">HTML Crypter Playground</h1>
-                <p class="text-sm text-gray-400">Ubah file HTML Anda menjadi file "Self-Decrypting" yang aman.</p>
-            </div>
+    <!-- Container untuk efek partikel -->
+    <div id="particles-js"></div>
 
-            <!-- KONTROL UTAMA -->
-            <div class="flex flex-wrap items-center gap-4 mb-4 bg-gray-900 p-4 rounded-lg">
-                <div class="flex-grow">
-                    <input type="password" id="secret-key-input" placeholder="Masukkan Secret Key yang KUAT untuk enkripsi..." class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
-                </div>
-            </div>
+    <div id="app-shell" class="glass-container">
+        <div class="text-center mb-6">
+            <h1 class="title">DZ Crypter</h1>
+            <p class="subtitle">Amankan dan Buka Kode HTML Anda dengan Mudah</p>
+        </div>
 
-            <!-- AREA INPUT & OUTPUT -->
-            <div class="grid md:grid-cols-2 gap-4 main-grid">
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-300 mb-2">Input HTML Asli</h2>
-                    <textarea id="input-area" placeholder="Paste seluruh kode HTML Anda di sini atau drag & drop file .html..." class="w-full h-80 p-3 bg-gray-900 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition resize-none"></textarea>
-                </div>
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-300 mb-2">Output (Kode "Crypter")</h2>
-                    <textarea id="output-area" readonly placeholder="Hasil kode yang sudah di-bundle akan muncul di sini..." class="w-full h-80 p-3 bg-black border border-gray-700 rounded-lg focus:outline-none resize-none glowing-output"></textarea>
-                </div>
-            </div>
+        <!-- KONTROL UTAMA -->
+        <div class="controls-bar">
+            <input type="password" id="secret-key-input" placeholder="Masukkan Secret Key Anda..." class="secret-key-input">
+        </div>
+        
+        <!-- PEMILIHAN MODE -->
+        <div class="mode-selector">
+            <label>
+                <input type="radio" name="mode" value="encrypt" checked>
+                <span>Enkripsi (HTML ke Teks)</span>
+            </label>
+            <label>
+                <input type="radio" name="mode" value="decrypt">
+                <span>Dekripsi (Teks ke HTML)</span>
+            </label>
+        </div>
 
-            <!-- TOMBOL AKSI -->
-            <div class="flex flex-col md:flex-row gap-4 mt-4">
-                <button id="process-btn" class="bg-red-600 text-white py-3 px-4 rounded-lg font-bold hover:bg-red-700 flex-1 text-lg">ENCRYPT & BUNDLE</button>
-                <button id="download-btn" class="bg-green-600 text-white py-3 px-4 rounded-lg font-bold hover:bg-green-700 flex-1 text-lg">Download Hasil (.html)</button>
+        <!-- AREA INPUT & OUTPUT -->
+        <div class="main-grid">
+            <div>
+                <h2 class="area-title">Input</h2>
+                <textarea id="input-area" placeholder="Paste kode Anda di sini atau drag & drop file..." class="io-area"></textarea>
             </div>
+            <div>
+                <h2 class="area-title">Output</h2>
+                <textarea id="output-area" readonly placeholder="Hasil akan muncul di sini..." class="io-area output-area"></textarea>
+            </div>
+        </div>
+
+        <!-- TOMBOL AKSI -->
+        <div class="action-buttons">
+            <button id="process-btn" class="btn btn-process">PROSES</button>
+            <button id="download-btn" class="btn btn-download">Download Hasil</button>
         </div>
     </div>
     
