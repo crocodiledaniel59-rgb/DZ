@@ -1,26 +1,192 @@
-:root { 
-    --red-400: #f87171; 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --primary-glow: rgba(239, 68, 68, 0.5);
+    --secondary-glow: rgba(59, 130, 246, 0.5);
 }
 
-body { 
-    font-family: 'Segoe UI', sans-serif; 
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #0f0c29;
+    background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
+    background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+    color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+    overflow: hidden;
 }
 
-.glowing-output { 
-    transition: box-shadow 0.4s ease-in-out; 
+/* Konfigurasi Latar Belakang Partikel */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
 }
 
-.glowing-output.show { 
-    box-shadow: 0 0 15px 5px rgba(248, 113, 113, 0.3); 
+.glass-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 1s ease-in-out;
 }
 
-.drag-over { 
-    border-style: dashed !important; 
-    border-color: var(--red-400) !important; 
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-@media (max-width: 768px) { 
-    .main-grid { 
-        grid-template-columns: 1fr; 
-    } 
+.title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    background: -webkit-linear-gradient(45deg, #ef4444, #3b82f6, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
+
+.subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.5rem;
+}
+
+.controls-bar, .mode-selector, .action-buttons {
+    margin-bottom: 1.5rem;
+}
+
+.secret-key-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.secret-key-input:focus {
+    outline: none;
+    border-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.mode-selector {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.mode-selector label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.area-title {
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.io-area {
+    width: 100%;
+    height: 300px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    color: #f0f0f0;
+    font-family: 'Courier New', Courier, monospace;
+    resize: none;
+    transition: all 0.3s ease;
+}
+
+.io-area:focus {
+    outline: none;
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 15px var(--secondary-glow);
+}
+
+.io-area.drag-over {
+    border-style: dashed !important;
+    border-color: var(--primary-glow) !important;
+}
+
+.output-area.show {
+    animation: glow 0.5s ease-in-out;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 0 0 var(--secondary-glow); }
+    50% { box-shadow: 0 0 20px 8px var(--secondary-glow); }
+    100% { box-shadow: 0 0 0 0 var(--secondary-glow); }
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-process {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-process:hover {
+    background: #dc2626;
+    box-shadow: 0 0 20px var(--primary-glow);
+}
+
+.btn-download {
+    background: #22c55e;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #16a34a;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+}
+
+@media (max-width: 768px) {
+    body { padding: 0.5rem; }
+    .glass-container { padding: 1rem; }
+    .main-grid { grid-template-columns: 1fr; }
+    .action-buttons { grid-template-columns: 1fr; }
+    .title { font-size: 2rem; }
+         }
