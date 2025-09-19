@@ -9,6 +9,7 @@
     <!-- Library Particles.js untuk efek latar belakang -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <link rel="stylesheet" href="stylish.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
@@ -58,5 +59,18 @@
     </div>
     
     <script src="script.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then(registration => {
+              console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+          });
+        }
+    </script>
+    
 </body>
 </html>
