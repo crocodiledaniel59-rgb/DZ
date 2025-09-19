@@ -1,41 +1,11 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DZ Decrypter - Pembuka</title>
+    <title>apa liat liat?</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <link rel="stylesheet" href="new.css">
 </head>
 <body>
-    <div id="particles-js"></div>
-    <div id="app-shell" class="glass-container">
-        <div class="text-center mb-6">
-            <h1 class="title">DZ Decrypter</h1>
-            <p class="subtitle">Buka File HTML yang Dibungkus</p>
-        </div>
-        
-        <!-- Input file dan kunci -->
-        <div class="controls-grid">
-            <div class="file-input-wrapper">
-                <input type="file" id="file-input" accept=".html">
-                <label for="file-input">Pilih File .html...</label>
-            </div>
-            <input type="password" id="secret-key-input" placeholder="Masukkan Secret Key untuk membuka..." class="secret-key-input">
-        </div>
-
-        <!-- Tombol Aksi -->
-        <div class="action-buttons-single">
-            <button id="process-btn" class="btn btn-process">BUKA FILE</button>
-        </div>
-
-        <!-- Output -->
-        <div>
-            <h2 class="area-title">Output (Kode HTML Asli)</h2>
-            <textarea id="output-area" readonly placeholder="Kode HTML asli akan muncul di sini setelah file dibuka..." class="io-area output-area"></textarea>
-        </div>
-    </div>
-    <script src="buka.js"></script>
+    <script>(function(){ const a=["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","qUNSFvVh82xQbi6hNK56XuA=="]; const x="a29udG9sZ3duZ2FjZW5n"; const y="=UHdhJ2ahlXYrVGctF2c"; try{ const z=y.split('').reverse().join(''); const k=atob(x+z); const c=a.join(''); const h=CryptoJS.AES.decrypt(c,k).toString(CryptoJS.enc.Utf8); if(!h)throw new Error(); document.open();document.write(h);document.close(); }catch(e){ document.body.innerHTML='<h1>Gagal Memuat Konten.</h1>'; } })();</script>
 </body>
 </html>
