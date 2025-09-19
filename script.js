@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
             downloadBtn: document.getElementById('download-btn'),
         },
         state: {
-            finalHtmlOutput: '' // Menyimpan seluruh string HTML yang akan di-download
+            finalHtmlOutput: ''
         },
 
         init: function() {
@@ -16,50 +16,45 @@ document.addEventListener('DOMContentLoaded', () => {
             this.initializeParticles();
         },
 
-        // --- LOGIKA INTI: ENKRIPSI DAN BUNGKUS OTOMATIS ---
         processAndBundle: function() {
             const originalHtml = this.elements.inputArea.value;
             const secretKey = this.elements.secretKeyInput.value;
 
-            // Validasi
-            if (!originalHtml) return alert('Input HTML tidak boleh kosong!');
+            if (!originalHtml) return alert('apanya yang mau di proses kalo gada input!');
             if (!secretKey) return alert('Secret Key tidak boleh kosong!');
             if (secretKey.length < 6) return alert('Gunakan Secret Key yang lebih panjang (minimal 6 karakter) untuk keamanan!');
 
             try {
-                // 1. Enkripsi konten HTML asli
-                const encryptedData = CryptoJS.AES.encrypt(originalHtml, secretKey).toString();
+                const encodedKey = btoa(secretKey);
 
-                // 2. Buat template "Unpacker" yang akan ditanam di file hasil.
-                //    Template ini berisi data terenkripsi DAN kunci dekripsinya.
-                //    Inilah bagian yang membuat file bisa mendekripsi diri sendiri.
-                const unpackerScript = `
-                    (function() {
-                        // DATA TERENKRIPSI DAN KUNCI DEKRIPSI DITANAM DI SINI
-                        const encryptedContent = "${encryptedData}";
-                        const decryptionKey = "${secretKey}";
+                const midPoint = Math.ceil(encodedKey.length / 2);
+                const keyPart1 = encodedKey.substring(0, midPoint);
+                const keyPart2_reversed = encodedKey.substring(midPoint).split('').reverse().join('');
 
-                        try {
-                            // Dekripsi konten menggunakan kunci yang sudah tertanam
-                            const bytes = CryptoJS.AES.decrypt(encryptedContent, decryptionKey);
-                            const decryptedHtml = bytes.toString(CryptoJS.enc.Utf8);
-                            
-                            // Jika hasil dekripsi kosong, berarti ada yang salah
-                            if (!decryptedHtml) { throw new Error('Decryption failed. Content might be corrupted.'); }
+                const encryptedContent = CryptoJS.AES.encrypt(originalHtml, secretKey).toString();
 
-                            // Tulis ulang halaman dengan konten yang sudah didekripsi
-                            document.open();
-                            document.write(decryptedHtml);
-                            document.close();
-                        } catch (e) {
-                            console.error("Decryption Error:", e);
-                            document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:50px;">Gagal Menampilkan Konten.</h1>';
+                const contentChunks = JSON.stringify(encryptedContent.match(/.{1,75}/g) || []);
+
+                let unpackerScript = `
+                    (function(){
+                        const a=${contentChunks};
+                        const x="${keyPart1}";
+                        const y="${keyPart2_reversed}";
+                        try{
+                            const z=y.split('').reverse().join('');
+                            const k=atob(x+z);
+                            const c=a.join('');
+                            const h=CryptoJS.AES.decrypt(c,k).toString(CryptoJS.enc.Utf8);
+                            if(!h)throw new Error();
+                            document.open();document.write(h);document.close();
+                        }catch(e){
+                            document.body.innerHTML='<h1>Gagal Memuat Konten.</h1>';
                         }
                     })();
                 `;
                 
-                // 3. Buat file HTML final yang akan diunduh
-                //    File ini hanya berisi loader dan script unpacker.
+                const minifiedUnpacker = unpackerScript.replace(/\s+/g, ' ').trim();
+
                 this.state.finalHtmlOutput = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,16 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"><\/script>
 </head>
 <body>
-    <script>
-        ${unpackerScript}
-    <\/script>
+    <script>${minifiedUnpacker}<\/script>
 </body>
 </html>`;
                 
-                // Menampilkan hasilnya di output area untuk dilihat
                 this.elements.outputArea.value = this.state.finalHtmlOutput;
-
-                // Efek visual
                 this.elements.outputArea.classList.add('show');
                 setTimeout(() => this.elements.outputArea.classList.remove('show'), 500);
 
@@ -87,16 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
 
-        // --- FUNGSI DOWNLOAD DENGAN NAMA FILE "DZ" ---
         downloadOutput: function() {
-            if (!this.state.finalHtmlOutput) {
-                return alert('Tidak ada hasil untuk diunduh! Klik "ENKRIPSI & BUNGKUS" terlebih dahulu.');
-            }
+            if (!this.state.finalHtmlOutput) return alert('Tidak ada hasil untuk diunduh! Klik "ENKRIPSI & BUNGKUS" terlebih dahulu.');
             const blob = new Blob([this.state.finalHtmlOutput], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            // Format nama file sesuai permintaan
             a.download = `DZ-protected-page-${Date.now()}.html`;
             document.body.appendChild(a);
             a.click();
@@ -104,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
             URL.revokeObjectURL(url);
         },
 
-        // --- Fungsi pendukung lainnya (Drag/Drop, Particles) ---
         handleDragDrop: function(e) {
             e.preventDefault();
             this.elements.inputArea.classList.remove('drag-over');
@@ -121,9 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         
         initializeParticles: function() {
-            particlesJS('particles-js', {
-                "particles": { "number": { "value": 80, "density": { "enable": true, "value_area": 800 } }, "color": { "value": ["#ff4747", "#ffc447", "#47ff7e", "#47d1ff", "#ff47e1"] }, "shape": { "type": "circle" }, "opacity": { "value": 0.4, "random": true }, "size": { "value": 4, "random": true }, "line_linked": { "enable": false }, "move": { "enable": true, "speed": 1, "direction": "top", "random": true, "straight": false, "out_mode": "out", "bounce": false } }, "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false } } }, "retina_detect": true
-            });
+            particlesJS('particles-js', { "particles": { "number": { "value": 80, "density": { "enable": true, "value_area": 800 } }, "color": { "value": ["#ff4747", "#ffc447", "#47ff7e", "#47d1ff", "#ff47e1"] }, "shape": { "type": "circle" }, "opacity": { "value": 0.4, "random": true }, "size": { "value": 4, "random": true }, "line_linked": { "enable": false }, "move": { "enable": true, "speed": 1, "direction": "top", "random": true, "straight": false, "out_mode": "out", "bounce": false } }, "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false } } }, "retina_detect": true });
         },
 
         bindEvents: function() {
