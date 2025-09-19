@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZ Crypter - Final Version</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="stylish.css">
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <div id="app-shell" class="glass-container">
+        <div class="text-center mb-6">
+            <h1 class="title">DZ Crypter</h1>
+            <p class="subtitle">Bungkus, Enkripsi, dan Dekripsi Kode Anda</p>
+        </div>
+
+        <div class="controls-bar">
+            <input type="password" id="secret-key-input" placeholder="Masukkan Secret Key Anda..." class="secret-key-input">
+        </div>
+        
+        <div class="mode-selector">
+            <label>
+                <input type="radio" name="mode" value="bundle" checked>
+                <span>Bungkus (Self-Decrypting)</span>
+            </label>
+            <label>
+                <input type="radio" name="mode" value="encrypt">
+                <span>Enkripsi (ke Teks)</span>
+            </label>
+            <label>
+                <input type="radio" name="mode" value="decrypt">
+                <span>Dekripsi (dari Teks)</span>
+            </label>
+        </div>
+
+        <div class="main-grid">
+            <div>
+                <h2 class="area-title">Input</h2>
+                <textarea id="input-area" placeholder="Paste kode HTML untuk dibungkus..." class="io-area"></textarea>
+            </div>
+            <div>
+                <h2 class="area-title">Output</h2>
+                <textarea id="output-area" readonly placeholder="Hasil akan muncul di sini..." class="io-area output-area"></textarea>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button id="process-btn" class="btn btn-process">PROSES</button>
+            <button id="download-btn" class="btn btn-download">Download Hasil</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
