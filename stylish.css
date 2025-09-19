@@ -1,0 +1,27 @@
+:root { 
+    --red-400: #f87171; 
+    --gray-300: #d1d5db; 
+}
+
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+}
+
+.glowing-output { 
+    transition: box-shadow 0.4s ease-in-out; 
+}
+
+.glowing-output.show { 
+    box-shadow: 0 0 15px 5px rgba(248, 113, 113, 0.3); 
+}
+
+.drag-over { 
+    border-style: dashed !important; 
+    border-color: var(--red-400) !important; 
+}
+
+@media (max-width: 768px) { 
+    .main-grid { 
+        grid-template-columns: 1fr; 
+    } 
+}
