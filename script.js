@@ -1,133 +1,123 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // OBJEK UTAMA APLIKASI
     const crypter = {
-        // --- Kumpulan Elemen HTML ---
         elements: {
             secretKeyInput: document.getElementById('secret-key-input'),
             inputArea: document.getElementById('input-area'),
             outputArea: document.getElementById('output-area'),
             processBtn: document.getElementById('process-btn'),
             downloadBtn: document.getElementById('download-btn'),
-            modeRadios: document.querySelectorAll('input[name="mode"]'),
         },
-        // --- Penyimpanan Status Aplikasi ---
         state: {
-            currentOutputContent: '',
-            currentOutputType: '',
-            currentMode: 'encrypt' // Mode default saat pertama kali dibuka
+            finalHtmlOutput: '' // Menyimpan seluruh string HTML yang akan di-download
         },
 
-        // --- Fungsi Inisialisasi ---
         init: function() {
             this.bindEvents();
             this.initializeParticles();
         },
 
-        // --- LOGIKA INTI YANG BARU (ENKRIPSI / DEKRIPSI) ---
-        // PERHATIKAN: Fungsi ini menggantikan 'processAndBundle' yang lama.
-        // TIDAK ADA LAGI PEMBUATAN FILE OTOMATIS DENGAN 'PROMPT'.
-        processAction: function() {
-            const inputValue = this.elements.inputArea.value;
+        // --- LOGIKA INTI: ENKRIPSI DAN BUNGKUS OTOMATIS ---
+        processAndBundle: function() {
+            const originalHtml = this.elements.inputArea.value;
             const secretKey = this.elements.secretKeyInput.value;
 
-            // Validasi input
-            if (!inputValue) return alert('code yang mau di enkripsi mana woi!');
-            if (!secretKey) return alert('kunci rahasianya isi dulu!');
+            // Validasi
+            if (!originalHtml) return alert('Input HTML tidak boleh kosong!');
+            if (!secretKey) return alert('Secret Key tidak boleh kosong!');
             if (secretKey.length < 6) return alert('Gunakan Secret Key yang lebih panjang (minimal 6 karakter) untuk keamanan!');
-            
+
             try {
-                let result = '';
-                // Jika mode 'encrypt' dipilih
-                if (this.state.currentMode === 'encrypt') {
-                    // Hanya mengubah HTML menjadi teks terenkripsi
-                    result = CryptoJS.AES.encrypt(inputValue, secretKey).toString();
-                    this.state.currentOutputType = 'text/plain';
+                // 1. Enkripsi konten HTML asli
+                const encryptedData = CryptoJS.AES.encrypt(originalHtml, secretKey).toString();
+
+                // 2. Buat template "Unpacker" yang akan ditanam di file hasil.
+                //    Template ini berisi data terenkripsi DAN kunci dekripsinya.
+                //    Inilah bagian yang membuat file bisa mendekripsi diri sendiri.
+                const unpackerScript = `
+                    (function() {
+                        // DATA TERENKRIPSI DAN KUNCI DEKRIPSI DITANAM DI SINI
+                        const encryptedContent = "${encryptedData}";
+                        const decryptionKey = "${secretKey}";
+
+                        try {
+                            // Dekripsi konten menggunakan kunci yang sudah tertanam
+                            const bytes = CryptoJS.AES.decrypt(encryptedContent, decryptionKey);
+                            const decryptedHtml = bytes.toString(CryptoJS.enc.Utf8);
+                            
+                            // Jika hasil dekripsi kosong, berarti ada yang salah
+                            if (!decryptedHtml) { throw new Error('Decryption failed. Content might be corrupted.'); }
+
+                            // Tulis ulang halaman dengan konten yang sudah didekripsi
+                            document.open();
+                            document.write(decryptedHtml);
+                            document.close();
+                        } catch (e) {
+                            console.error("Decryption Error:", e);
+                            document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:50px;">Gagal Menampilkan Konten.</h1>';
+                        }
+                    })();
+                `;
                 
-                // Jika mode 'decrypt' dipilih
-                } else { 
-                    // Mengubah teks terenkripsi kembali menjadi HTML
-                    const bytes = CryptoJS.AES.decrypt(inputValue, secretKey);
-                    result = bytes.toString(CryptoJS.enc.Utf8);
-                    
-                    // Jika hasil dekripsi kosong, berarti kunci salah
-                    if (!result) {
-                        throw new Error("Kunci salah atau data korup. Gagal mendekripsi.");
-                    }
-                    this.state.currentOutputType = 'text/html';
-                }
+                // 3. Buat file HTML final yang akan diunduh
+                //    File ini hanya berisi loader dan script unpacker.
+                this.state.finalHtmlOutput = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>apa liat liat?</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"><\/script>
+</head>
+<body>
+    <script>
+        ${unpackerScript}
+    <\/script>
+</body>
+</html>`;
+                
+                // Menampilkan hasilnya di output area untuk dilihat
+                this.elements.outputArea.value = this.state.finalHtmlOutput;
 
-                // Simpan hasil ke state dan tampilkan di output area
-                this.state.currentOutputContent = result;
-                this.elements.outputArea.value = result;
-
-                // Efek visual sederhana untuk menandakan proses selesai
+                // Efek visual
                 this.elements.outputArea.classList.add('show');
                 setTimeout(() => this.elements.outputArea.classList.remove('show'), 500);
 
             } catch (e) {
-                // Tangani error jika terjadi (misal: kunci salah)
-                alert('Terjadi error: ' + e.message);
+                alert('Terjadi error saat enkripsi: ' + e.message);
                 console.error(e);
-                this.elements.outputArea.value = ''; // Kosongkan output jika gagal
-                this.state.currentOutputContent = '';
             }
         },
 
-        // --- FUNGSI DOWNLOAD YANG SUDAH DIPERBAIKI ---
+        // --- FUNGSI DOWNLOAD DENGAN NAMA FILE "DZ" ---
         downloadOutput: function() {
-            if (!this.state.currentOutputContent) {
-                return alert('apanya yang mau di download? Klik "PROSES" dulu wok🗿.');
+            if (!this.state.finalHtmlOutput) {
+                return alert('Tidak ada hasil untuk diunduh! Klik "ENKRIPSI & BUNGKUS" terlebih dahulu.');
             }
-
-            const blob = new Blob([this.state.currentOutputContent], { type: this.state.currentOutputType });
+            const blob = new Blob([this.state.finalHtmlOutput], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            
-            const timestamp = Date.now();
-            let filename = '';
-            
-            // Logika penamaan file dengan inisial "DZ"
-            if (this.state.currentMode === 'encrypt') {
-                // Hasil enkripsi disimpan sebagai .txt
-                filename = `DZ-hasil-enkripsi-${timestamp}.txt`;
-            } else {
-                // Hasil dekripsi disimpan sebagai .html
-                filename = `DZ-hasil-dekripsi-${timestamp}.html`;
-            }
-
             a.href = url;
-            a.download = filename; // Menggunakan nama file yang sudah dibuat
+            // Format nama file sesuai permintaan
+            a.download = `DZ-protected-page-${Date.now()}.html`;
             document.body.appendChild(a);
-            a.click(); // Otomatis klik link untuk download
+            a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         },
 
-        // --- Fungsi pendukung lainnya tetap sama ---
+        // --- Fungsi pendukung lainnya (Drag/Drop, Particles) ---
         handleDragDrop: function(e) {
             e.preventDefault();
             this.elements.inputArea.classList.remove('drag-over');
             if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 const file = e.dataTransfer.files[0];
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    this.elements.inputArea.value = event.target.result;
-                };
-                reader.readAsText(file);
+                if (file.type === "text/html") {
+                    const reader = new FileReader();
+                    reader.onload = (event) => { this.elements.inputArea.value = event.target.result; };
+                    reader.readAsText(file);
+                } else {
+                    alert("only html ya bulshit🗿.");
+                }
             }
-        },
-
-        updateMode: function() {
-            this.state.currentMode = document.querySelector('input[name="mode"]:checked').value;
-            if (this.state.currentMode === 'encrypt') {
-                this.elements.inputArea.placeholder = "Paste kode HTML lu di sini...";
-            } else {
-                this.elements.inputArea.placeholder = "Paste code terenkripsi lu di sini...";
-            }
-            // Kosongkan area saat mode diganti
-            this.elements.inputArea.value = '';
-            this.elements.outputArea.value = '';
-            this.state.currentOutputContent = '';
         },
         
         initializeParticles: function() {
@@ -137,19 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         bindEvents: function() {
-            this.elements.processBtn.addEventListener('click', this.processAction.bind(this));
+            this.elements.processBtn.addEventListener('click', this.processAndBundle.bind(this));
             this.elements.downloadBtn.addEventListener('click', this.downloadOutput.bind(this));
             
-            this.elements.modeRadios.forEach(radio => {
-                radio.addEventListener('change', this.updateMode.bind(this));
-            });
-
             this.elements.inputArea.addEventListener('dragover', (e) => { e.preventDefault(); this.elements.inputArea.classList.add('drag-over'); });
             this.elements.inputArea.addEventListener('dragleave', () => this.elements.inputArea.classList.remove('drag-over'));
             this.elements.inputArea.addEventListener('drop', this.handleDragDrop.bind(this));
         }
     };
 
-    // Jalankan aplikasi
     crypter.init();
 });
