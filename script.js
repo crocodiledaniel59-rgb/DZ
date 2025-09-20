@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         processAndBundle: function() {
-            const originalHtml = this.elements.inputArea.value;
+            let originalHtml = this.elements.inputArea.value;
             const secretKey = this.elements.secretKeyInput.value;
 
             if (!originalHtml) return alert('apanya yang mau di proses kalo gada input!');
@@ -25,33 +25,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (secretKey.length < 6) return alert('Gunakan Secret Key yang lebih panjang (minimal 6 karakter) untuk keamanan!');
 
             try {
-                const encodedKey = btoa(secretKey);
+                let manifestLink = '';
+                let swScript = '';
 
+                const manifestRegex = /<link\s+rel="manifest"[^>]*>/i;
+                const manifestMatch = originalHtml.match(manifestRegex);
+                if (manifestMatch) {
+                    manifestLink = manifestMatch[0];
+                    originalHtml = originalHtml.replace(manifestRegex, ''); 
+                }
+
+                const swRegex = /<script>([\s\S]*?navigator\.serviceWorker\.register[\s\S]*?)<\/script>/i;
+                const swMatch = originalHtml.match(swRegex);
+                if (swMatch) {
+                    swScript = swMatch[0].replace(/<\/script>/i, '<\\/script>');
+                    originalHtml = originalHtml.replace(swRegex, '');
+                }
+
+                const encodedKey = btoa(secretKey);
                 const midPoint = Math.ceil(encodedKey.length / 2);
                 const keyPart1 = encodedKey.substring(0, midPoint);
                 const keyPart2_reversed = encodedKey.substring(midPoint).split('').reverse().join('');
-
                 const encryptedContent = CryptoJS.AES.encrypt(originalHtml, secretKey).toString();
-
                 const contentChunks = JSON.stringify(encryptedContent.match(/.{1,75}/g) || []);
 
-                let unpackerScript = `
-                    (function(){
-                        const a=${contentChunks};
-                        const x="${keyPart1}";
-                        const y="${keyPart2_reversed}";
-                        try{
-                            const z=y.split('').reverse().join('');
-                            const k=atob(x+z);
-                            const c=a.join('');
-                            const h=CryptoJS.AES.decrypt(c,k).toString(CryptoJS.enc.Utf8);
-                            if(!h)throw new Error();
-                            document.open();document.write(h);document.close();
-                        }catch(e){
-                            document.body.innerHTML='<h1>Gagal Memuat Konten.</h1>';
-                        }
-                    })();
-                `;
+                let unpackerScript = `(function(){const a=${contentChunks};const x="${keyPart1}";const y="${keyPart2_reversed}";try{const z=y.split('').reverse().join('');const k=atob(x+z);const c=a.join('');const h=CryptoJS.AES.decrypt(c,k).toString(CryptoJS.enc.Utf8);if(!h)throw new Error();document.open();document.write(h);document.close();}catch(e){document.body.innerHTML='<h1>Gagal Memuat Konten.</h1>';}})();`;
                 
                 const minifiedUnpacker = unpackerScript.replace(/\s+/g, ' ').trim();
 
@@ -60,10 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
 <head>
     <meta charset="UTF-8">
     <title>apa liat liat?</title>
+    ${manifestLink}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"><\/script>
 </head>
 <body>
     <script>${minifiedUnpacker}<\/script>
+    ${swScript}
 </body>
 </html>`;
                 
@@ -121,3 +121,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     crypter.init();
 });
+            
