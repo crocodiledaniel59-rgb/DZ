@@ -190,3 +190,21 @@ body {
     .action-buttons { grid-template-columns: 1fr; }
     .title { font-size: 2rem; }
          }
+
+ .pepek{
+      position:fixed; inset:auto 0 14px 0;
+      display:flex; justify-content:center; pointer-events:none;
+      font-size:12px; color:rgba(255,255,255,.55);
+    }
+    footer span{ pointer-events:auto; background:rgba(0,0,0,.25); padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12) }
+
+    @media (max-width:420px){
+      .wrap{ padding:16px }
+      .card{ padding:22px 18px }
+      .logo{ width:48px; height:48px; font-size:24px }
+    }
+    
+    .tbb{
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 0 10px rgba(255,255,255,.2);
+    }
